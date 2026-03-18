@@ -1,0 +1,36 @@
+{
+  "name": "@promptkit/demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack --port 3099",
+    "build": "next build",
+    "start": "next start --port 3099"
+  },
+  "dependencies": {
+    "@auth/drizzle-adapter": "^1.11.1",
+    "@neondatabase/serverless": "^1.0.2",
+    "@promptkit/core": "0.1.0",
+    "@promptkit/protocol": "0.1.0",
+    "@promptkit/react": "0.1.0",
+    "@promptkit/widget-pack-essentials": "0.1.0",
+    "@tailwindcss/postcss": "^4.2.1",
+    "drizzle-orm": "^0.45.1",
+    "framer-motion": "^12.38.0",
+    "nanoid": "^3.3.11",
+    "next": "^15.1.0",
+    "next-auth": "^5.0.0-beta.30",
+    "postcss": "^8.5.8",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "tailwindcss": "^4.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "25.5.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.7.0"
+  }
+}
