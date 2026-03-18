@@ -1,34 +1,48 @@
-# PromptKit
+<p align="center">
+  <h1 align="center">🧩 PromptKit</h1>
+</p>
+
+<div align="center">
 
 **Interactive widgets for AI prompts. Stop describing, start dropping.**
 
-PromptKit lets users drop interactive UI widgets (color pickers, sliders, animation presets, component references) directly into their AI prompts. The AI receives structured data instead of ambiguous text.
+[Playground](https://promptkit.dev/playground) · [Marketplace](https://promptkit.dev/marketplace) · [Getting Started](#-getting-started) · [Features](#-features) · [Architecture](#-architecture) · [Roadmap](#-roadmap) · [License](LICENSE)
 
-Inspired by [Spielwerk's Cheats](https://x.com/spielwerkapp) — but for vibe coding.
+[![MIT License](https://img.shields.io/badge/license-MIT-3B82F6?style=for-the-badge)](LICENSE)
+[![Next.js 15](https://img.shields.io/badge/Next.js-15-000?style=for-the-badge&logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
+[![React 19](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![Tailwind v4](https://img.shields.io/badge/Tailwind-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![47 Widgets](https://img.shields.io/badge/Widgets-47-8B5CF6?style=for-the-badge)]()
 
-## The Problem
+</div>
+
+<br />
+
+## Why PromptKit?
+
+Today's vibe coding is **text-only prompting** — users describe what they want in words, hoping the AI interprets correctly. Colors become "kinda blue", spacing becomes "not too much", and animations become "something bouncy". Every prompt is a gamble.
+
+PromptKit replaces guesswork with **precision**. Users drop interactive widgets — color pickers, sliders, animation presets, component selectors — directly into their prompts. The AI receives **exact values** instead of vague descriptions.
 
 ```
-"Make the button kinda blue, like a nice blue, with rounded corners,
-not too rounded but like medium, and add a bouncy animation..."
+❌  "Make the button kinda blue, with rounded corners, not too rounded
+     but like medium, and add a bouncy animation when you click it"
+
+✅  "Make the button [color: #3B82F6] with [border-radius: 12px]
+     and [animation: bounce 500ms] on click"
 ```
 
-## The Solution
+> [!NOTE]
+> **Inspired by [Spielwerk's Cheats](https://x.com/spielwerkapp)** — interactive artifacts in prompts for game creation. PromptKit brings this concept to **all of vibe coding** as an open-source, pluggable library.
 
-```
-"Make the button [color: #3B82F6] with [border-radius: 12px]
-and [animation: bounce 500ms] on click"
-```
+<br />
 
-Every value is **precise, interactive, and WYSIWYG** — the user sees the color, adjusts the slider, picks the animation before sending.
+## ✦ Features
 
-## Quick Start
+### Drop-in Integration (3 Lines)
 
-### Drop into any chat interface (3 lines)
-
-```bash
-npm install @promptkit/react @promptkit/widget-pack-essentials
-```
+Replace any chat `<textarea>` with PromptKit. Works with **any LLM** — GPT, Claude, Gemini, Llama, Mistral.
 
 ```tsx
 import { PromptKitInput } from "@promptkit/react"
@@ -39,26 +53,39 @@ import { essentialsPack } from "@promptkit/widget-pack-essentials"
   onSubmit={(result) => {
     // result.forAI       → formatted prompt for any LLM
     // result.systemPrompt → teaches the LLM the widget format
-    // result.structured   → full JSON with exact values
-    const messages = [
+    sendToLLM([
       { role: "system", content: result.systemPrompt },
       { role: "user", content: result.forAI },
-    ]
-    callAnyLLM(messages) // GPT, Claude, Gemini, Llama...
+    ])
   }}
 />
 ```
 
-That's it. Works with **any LLM**.
+<br />
 
-## What the AI Receives
+### 47 WYSIWYG Widgets
 
-When a user sends a prompt with widgets, the AI gets:
+Every widget **visually reacts** to its value in real time — fonts change, colors glow, animations play, borders render, patterns appear.
+
+| | Category | Widgets | Examples |
+|:--|:--|:--|:--|
+| 🎨 | **Color** | 4 | Color picker, opacity, gradient (dual picker + 8 directions), CSS filters |
+| Aa | **Typography** | 9 | Font size (scales live), font family (renders in the font), weight, align, leading, tracking, decoration, transform, overflow |
+| ↔ | **Spacing** | 3 | Gap/padding (animated bars), border-radius (corners morph), border (style renders on chip) |
+| 📐 | **Layout** | 10 | Grid columns (animated grid), flex direction (rotating arrow), justify, align, position, display, overflow, aspect-ratio, object-fit, breakpoint |
+| ✦ | **Effects** | 7 | Shadow (real box-shadow on chip), blur (text blurs), animation (icon plays the animation), effects (glow/shimmer), transform (chip rotates/scales), decorations, scroll FX |
+| 🧩 | **UI Components** | 12 | Text effects, button styles, backgrounds, card styles, navigation, device frames, social proof, 3D — all from **MagicUI** + **Aceternity** via 21st.dev |
+| 🔀 | **Logic** | 4 | Toggle (glow ON, strikethrough OFF), select, slider, cursor (real cursor on chip) |
+
+<br />
+
+### What the AI Actually Receives
+
+When a user sends a prompt with widgets, the AI gets **structured data with exact CSS values and install commands**:
 
 ```
-Create a hero section with [color: #3B82F6] heading, [font-family: Inter],
-[font-size: 48px], [font-weight: ExtraBold (800)].
-Add a [button-style: shimmer-button (magicui)] CTA.
+Create a hero with [color: #3B82F6] heading, [font-family: Inter],
+[font-size: 48px]. Add a [button-style: shimmer-button (magicui)] CTA.
 Use [background: aurora-background (aceternity)] behind it.
 
 ---
@@ -66,76 +93,220 @@ Widget Specifications:
 - color: CSS color: #3B82F6
 - font-family: CSS font-family: 'Inter', sans-serif
 - font-size: CSS font-size: 48px
-- font-weight: CSS font-weight: 800
-- button-style: use magicui/shimmer-button (npx shadcn@latest add "https://21st.dev/r/magicui/shimmer-button")
-- background: use aceternity/aurora-background (npx shadcn@latest add "https://21st.dev/r/aceternity/aurora-background")
+- button-style: use magicui/shimmer-button
+  (npx shadcn@latest add "https://21st.dev/r/magicui/shimmer-button")
+- background: use aceternity/aurora-background
+  (npx shadcn@latest add "https://21st.dev/r/aceternity/aurora-background")
 ```
 
-Precise CSS values, Tailwind classes, and exact component install commands.
+Plus a system prompt (`PROMPTKIT_SYSTEM_PROMPT`) that teaches any LLM to interpret the notation.
 
-## 47 Built-in Widgets
+<br />
 
-### Color (4)
-Color picker, Opacity, Gradient (dual picker + 8 directions), CSS Filters
+### Marketplace
 
-### Typography (9)
-Font Size, Font Family (with WYSIWYG preview), Font Weight (Thin-Black), Text Align, Line Height, Letter Spacing, Text Decoration, Text Transform, Text Overflow
+Browse, search, and install community widget packs. Creators publish packs, users install them.
 
-### Spacing (3)
-Padding/Margin/Gap, Border Radius, Border (width + style + color)
+| | Feature | Description |
+|:--|:--|:--|
+| 🏪 | **Browse** | Search + filter by category + sort (popular/new/name) |
+| 📦 | **Pack Detail** | Widgets list, reviews, install command, stats, pricing |
+| 📊 | **Creator Dashboard** | My packs, total installs, ratings, revenue |
+| 📝 | **Publish** | 3-step form: info → package → review → live |
+| 🔌 | **REST API** | `/api/packs`, `/api/categories` — JSON endpoints |
 
-### Layout (10)
-Grid Columns, Flex Direction, Justify Content, Align Items, Position, Display, Overflow, Aspect Ratio, Object Fit, Breakpoint
+<br />
 
-### Effects (7)
-Box Shadow, Blur, Animation (12 presets), Visual Effects (shimmer, glow, aurora...), Transform (rotate, scale, skew), Decorations, Scroll Effects
+### CLI
 
-### UI Components (12) — from 21st.dev
-Text Effects (typing, word-rotate, sparkles-text...), Button Styles (shimmer, rainbow, shiny...), Backgrounds (dot-pattern, aurora, particles...), Card Styles (magic-card, bento-grid...), Navigation, Device Frames (iPhone, Safari, Terminal), Social Proof (avatars, marquee, tweet-card...), 3D (globe, orbiting circles)
-
-### Logic (4)
-Toggle (ON/OFF), Select (dropdown), Slider, Cursor
-
-**Every widget is WYSIWYG** — the chip visually reacts to its value in real time (font changes, colors glow, animations play, borders render, etc.).
-
-## Packages
-
-| Package | Description |
-|---------|-------------|
-| `@promptkit/protocol` | TypeScript types for the widget protocol |
-| `@promptkit/core` | Parser, serializer, registry, AI formatter |
-| `@promptkit/react` | React components + `PromptKitInput` drop-in |
-| `@promptkit/tui` | Terminal UI — interactive widgets in the terminal |
-| `@promptkit/cli` | CLI: `create-pack`, `validate`, `publish` |
-| `@promptkit/widget-pack-essentials` | 47 built-in widgets |
-
-## Marketplace
-
-Browse, search, and install community widget packs.
-
-```
-/                          → Home (featured + popular packs)
-/marketplace               → Browse all packs with search + filters
-/marketplace/[slug]        → Pack detail (widgets, reviews, install)
-/dashboard                 → Creator dashboard (my packs, stats)
-/dashboard/publish         → Publish a new pack (3-step form)
-/playground                → Try all 47 widgets interactively
+```bash
+npx promptkit create-pack my-pack   # Scaffold a new widget pack
+npx promptkit validate              # Validate before publishing
+npx promptkit publish               # Publish to the marketplace
 ```
 
-### Available Packs (seed)
+<br />
 
-| Pack | Widgets | Price |
-|------|---------|-------|
-| Tailwind Essentials | 24 | Free |
-| MagicUI Effects | 32 | Free |
-| Aceternity UI | 18 | $5 |
-| 3D Scenes | 15 | $8 |
-| Motion Presets | 45 | Free |
-| E-Commerce UI | 22 | $10 |
-| Dashboard Kit | 28 | Free |
-| Accessibility Toolkit | 12 | Free |
+### Terminal UI
 
-## Create a Widget Pack
+Interactive widget editing directly in the terminal — keyboard-driven, no GUI needed:
+
+```
+🧩 PromptKit │ Typing │ 3 widgets
+╭──────────────────────────────────────────────────────╮
+│ Make the button ● #3B82F6 with ◐ 12px radius        │
+│ and 🎬 bounce animation                              │
+╰──────────────────────────────────────────────────────╯
+
+←→↑↓: edit value │ Tab: next widget │ Enter: send │ Ctrl+C: quit
+```
+
+<br />
+
+## 🆚 Comparison
+
+| Capability | PromptKit | Plain Text Prompts | Figma-to-Code | Design Tokens |
+|:--|:--:|:--:|:--:|:--:|
+| Inline in prompts | ✅ | ❌ | ❌ | ❌ |
+| Interactive/editable | ✅ | ❌ | ❌ | ⚠️ |
+| WYSIWYG preview | ✅ | ❌ | ✅ | ❌ |
+| Works with any LLM | ✅ | ✅ | ❌ | ❌ |
+| Component-level (MagicUI, etc.) | ✅ | ❌ | ❌ | ❌ |
+| Marketplace / extensible | ✅ | ❌ | ❌ | ⚠️ |
+| Terminal support | ✅ | ✅ | ❌ | ❌ |
+| Open source | ✅ | N/A | ⚠️ | ✅ |
+
+<br />
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- **Node.js** 20+
+- No database required for development (seed data built-in)
+
+### Quick Setup
+
+```bash
+# Clone & install
+git clone https://github.com/Onthelolow/promptkit.git
+cd promptkit
+npm install
+
+# Build all 7 packages
+npm run build
+
+# Start the app (marketplace + playground)
+npm run dev
+```
+
+Open **[http://localhost:3099](http://localhost:3099)** — you're in.
+
+> [!TIP]
+> No environment variables needed for development. The marketplace uses built-in seed data. Configure `DATABASE_URL` and auth providers when deploying to production.
+
+<details>
+<summary><strong>Environment Variables (production)</strong></summary>
+
+<br />
+
+| Variable | Required | Description |
+|:--|:--:|:--|
+| `DATABASE_URL` | ✅ | Neon/PostgreSQL connection string |
+| `NEXTAUTH_SECRET` | ✅ | NextAuth secret (`openssl rand -base64 32`) |
+| `GITHUB_CLIENT_ID` | | GitHub OAuth client ID |
+| `GITHUB_CLIENT_SECRET` | | GitHub OAuth secret |
+| `GOOGLE_CLIENT_ID` | | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | | Google OAuth secret |
+
+</details>
+
+<br />
+
+## 🏗 Architecture
+
+### Tech Stack
+
+| Layer | Technology |
+|:--|:--|
+| **Monorepo** | Turborepo |
+| **Language** | TypeScript 5 (strict) |
+| **Build** | tsup (tree-shakeable ESM) |
+| **Framework** | Next.js 15 (App Router, Turbopack) |
+| **UI** | React 19, Tailwind CSS v4, Framer Motion |
+| **Terminal** | Ink (React for CLI) |
+| **Database** | Drizzle ORM + Neon PostgreSQL |
+| **Auth** | NextAuth v5 |
+| **Tests** | Vitest (30 tests) |
+
+### Packages
+
+```
+promptkit/
+├── packages/
+│   ├── protocol/              # TypeScript types (WidgetPack, Widget, etc.)
+│   ├── core/                  # Parser, serializer, registry, AI formatter
+│   ├── react/                 # React components + PromptKitInput drop-in
+│   ├── tui/                   # Terminal UI (ink-based)
+│   ├── cli/                   # CLI: create-pack, validate, publish
+│   └── widget-packs/
+│       └── essentials/        # 47 built-in widgets
+└── apps/
+    └── demo/                  # Marketplace + Playground (Next.js 15)
+```
+
+### Widget Protocol
+
+The token format: `{{type:key=value,key2=value2}}`
+
+```
+{{color:value=#3B82F6}}
+{{radius:value=12,unit=px}}
+{{animation:value=bounce,duration=500ms}}
+{{button-style:value=shimmer-button,source=magicui}}
+```
+
+Parsed into `RichPrompt` → serialized for AI with `formatForAI()` → any LLM understands.
+
+### Database — 6 Tables
+
+```
+Auth                    Marketplace              Tracking
+────────────            ──────────────           ────────────
+users                   packs                    downloads
+accounts                pack_versions            api_keys
+sessions                reviews
+verification_tokens
+```
+
+<br />
+
+## 🗺 Roadmap
+
+- [ ] Deploy marketplace to Vercel
+- [ ] Stripe Connect for creator payouts (20-30% commission)
+- [ ] npm publish all packages to registry
+- [ ] MCP Server for Cursor / Claude Code native integration
+- [ ] Stripe Agent Toolkit for AI-driven pack purchases
+- [ ] Project indexer (Pro) — drag & drop your own components into prompts
+- [ ] Figma sync (Enterprise) — design system → widgets
+- [ ] VS Code / Cursor extension
+- [ ] Visual widget pack builder (no-code)
+- [ ] Real-time collaborative editing
+
+<br />
+
+## 🏢 Who Uses PromptKit?
+
+<table>
+<tr>
+<td align="center" width="120">
+<br />
+<strong>🧩</strong>
+<br /><br />
+</td>
+<td>
+<strong>Your project here</strong>
+<br />
+PromptKit is brand new. <a href="https://github.com/Onthelolow/promptkit/pulls">Open a PR</a> to add your integration.
+</td>
+</tr>
+</table>
+
+<br />
+
+## 🤝 Contributing
+
+Contributions welcome! Fork the repo, create a branch, and submit a PR.
+
+```bash
+npm install       # Install dependencies
+npm run build     # Build all 7 packages
+npm run dev       # Dev server on localhost:3099
+npm run test      # Run 30 tests
+```
+
+### Create a Widget Pack
 
 ```bash
 npx promptkit create-pack my-pack
@@ -147,133 +318,24 @@ npx promptkit validate
 npx promptkit publish
 ```
 
-### Widget Definition
+<br />
 
-```typescript
-import type { WidgetDefinition } from "@promptkit/protocol"
+## 📄 License
 
-export const myWidget: WidgetDefinition<{ value: string }> = {
-  type: "my-widget",
-  category: "components",
-  defaultDisplay: { label: "My Widget", preview: "✨", inline: true },
-  defaultValue: { value: "hello" },
-  defaultMeta: {},
-  serialize: (w) => `value=${w.value.value}`,
-  deserialize: (params) => ({ value: { value: params.value || "hello" } }),
-  humanReadable: (w) => `[✨ ${w.value.value}]`,
-}
-```
+[MIT](LICENSE) — use it for anything.
 
-### Pack Export
+<br />
 
-```typescript
-import type { WidgetPack } from "@promptkit/protocol"
-import { myWidget } from "./widgets/my-widget"
+---
 
-export const myPack: WidgetPack = {
-  name: "my-pack",
-  version: "1.0.0",
-  widgets: [myWidget],
-}
-```
+<div align="center">
 
-## Terminal UI
+**PromptKit** — Stop describing. Start dropping.
 
-Interactive widget editing directly in the terminal:
+Built with the conviction that AI prompts should be interactive, not just text.
 
-```bash
-npx promptkit tui
-```
+<br />
 
-```
-🧩 PromptKit │ Typing │ 0 widgets
-╭──────────────────────────────────────────╮
-│ Type your prompt... (Tab = widgets)       │
-╰──────────────────────────────────────────╯
-❯ _
+[⬆ Back to top](#-promptkit)
 
-Tab: widgets │ Ctrl+W: palette │ Enter: send │ Ctrl+C: quit
-```
-
-Arrow keys to edit widget values. Tab to cycle between widgets. Full keyboard-driven workflow.
-
-## Architecture
-
-```
-@promptkit/protocol        ← Type definitions (WidgetPack, Widget, etc.)
-       ↓
-@promptkit/core            ← Parser, serializer, registry, AI formatter
-       ↓
-@promptkit/react           ← UI components + PromptKitInput drop-in
-@promptkit/tui             ← Terminal UI (ink)
-@promptkit/cli             ← CLI tools (create, validate, publish)
-       ↓
-@promptkit/widget-pack-*   ← Widget packs (essentials + community)
-```
-
-### Protocol
-
-The widget token format: `{{type:key=value,key2=value2}}`
-
-```
-{{color:value=#3B82F6}}
-{{radius:value=12,unit=px}}
-{{animation:value=bounce,duration=500ms}}
-{{font-family:value=Inter}}
-```
-
-Parsed into `RichPrompt` → serialized for AI with `formatForAI()`.
-
-### AI Integration
-
-```typescript
-import { PROMPTKIT_SYSTEM_PROMPT, formatForAI } from "@promptkit/core"
-
-// Inject system prompt once
-messages.push({ role: "system", content: PROMPTKIT_SYSTEM_PROMPT })
-
-// Format each user message
-messages.push({ role: "user", content: formatForAI(richPrompt, registry) })
-```
-
-The system prompt teaches any LLM to interpret widget notation. `formatForAI()` outputs human-readable widget descriptions + CSS/Tailwind specs + 21st.dev install commands.
-
-## Tech Stack
-
-- **Monorepo**: Turborepo
-- **Language**: TypeScript (strict)
-- **Build**: tsup (tree-shakeable ESM)
-- **React**: v19 (supports 18+)
-- **Styling**: Tailwind v4
-- **Animations**: Framer Motion
-- **Terminal**: Ink (React for CLI)
-- **App**: Next.js 15 (Turbopack)
-- **DB**: Drizzle ORM + Neon Postgres (marketplace)
-- **Auth**: NextAuth v5 (marketplace)
-- **Tests**: Vitest (30 tests)
-
-## Development
-
-```bash
-git clone https://github.com/Onthelolow/promptkit.git
-cd promptkit
-npm install
-npm run build        # Build all packages
-npm run dev          # Start demo app on localhost:3099
-npm run test         # Run 30 tests
-```
-
-## Roadmap
-
-- [ ] Deploy marketplace to Vercel
-- [ ] Stripe Connect for creator payouts
-- [ ] npm publish all packages
-- [ ] MCP Server for Cursor / Claude Code integration
-- [ ] Stripe Agent Toolkit for AI-driven pack purchases
-- [ ] Project indexer (Pro) — drag & drop your own components
-- [ ] Figma sync (Enterprise) — design system to widgets
-- [ ] VS Code extension
-
-## License
-
-MIT
+</div>
