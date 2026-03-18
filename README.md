@@ -169,7 +169,7 @@ Interactive widget editing directly in the terminal — keyboard-driven, no GUI 
 
 ```bash
 # Clone & install
-git clone https://github.com/Onthelolow/promptkit.git
+git clone https://github.com/PromptKit-ai/promptkit.git
 cd promptkit
 npm install
 
@@ -288,7 +288,7 @@ verification_tokens
 <td>
 <strong>Your project here</strong>
 <br />
-PromptKit is brand new. <a href="https://github.com/Onthelolow/promptkit/pulls">Open a PR</a> to add your integration.
+PromptKit is brand new. <a href="https://github.com/PromptKit-ai/promptkit/pulls">Open a PR</a> to add your integration.
 </td>
 </tr>
 </table>
