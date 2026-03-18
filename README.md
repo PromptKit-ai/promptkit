@@ -19,6 +19,12 @@
 
 <br />
 
+<p align="center">
+  <img src="public/screenshots/home.png" alt="PromptKit Home" width="100%" style="border-radius: 12px;" />
+</p>
+
+<br />
+
 ## Why PromptKit?
 
 Today's vibe coding is **text-only prompting** — users describe what they want in words, hoping the AI interprets correctly. Colors become "kinda blue", spacing becomes "not too much", and animations become "something bouncy". Every prompt is a gamble.
@@ -60,6 +66,14 @@ import { essentialsPack } from "@promptkit/widget-pack-essentials"
   }}
 />
 ```
+
+<br />
+
+### Interactive Playground
+
+<p align="center">
+  <img src="public/screenshots/playground.png" alt="PromptKit Playground — widgets inline in the prompt with live JSON output" width="100%" style="border-radius: 12px;" />
+</p>
 
 <br />
 
@@ -105,7 +119,15 @@ Plus a system prompt (`PROMPTKIT_SYSTEM_PROMPT`) that teaches any LLM to interpr
 
 ### Marketplace
 
-Browse, search, and install community widget packs. Creators publish packs, users install them.
+Browse, search, and install community widget packs.
+
+<p align="center">
+  <img src="public/screenshots/marketplace.png" alt="PromptKit Marketplace — browse and install widget packs" width="100%" style="border-radius: 12px;" />
+</p>
+
+<p align="center">
+  <img src="public/screenshots/pack-detail.png" alt="Pack detail page — widgets list, reviews, install command" width="100%" style="border-radius: 12px;" />
+</p> Creators publish packs, users install them.
 
 | | Feature | Description |
 |:--|:--|:--|
@@ -114,6 +136,18 @@ Browse, search, and install community widget packs. Creators publish packs, user
 | 📊 | **Creator Dashboard** | My packs, total installs, ratings, revenue |
 | 📝 | **Publish** | 3-step form: info → package → review → live |
 | 🔌 | **REST API** | `/api/packs`, `/api/categories` — JSON endpoints |
+
+<br />
+
+### Creator Dashboard
+
+<p align="center">
+  <img src="public/screenshots/dashboard.png" alt="Creator Dashboard — stats, published packs, revenue" width="100%" style="border-radius: 12px;" />
+</p>
+
+<p align="center">
+  <img src="public/screenshots/publish.png" alt="Publish form — 3-step widget pack publication" width="100%" style="border-radius: 12px;" />
+</p>
 
 <br />
 
