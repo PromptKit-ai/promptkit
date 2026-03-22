@@ -37,31 +37,37 @@ function ColorChip({ widget, onChange }: { widget: Widget; onChange: (v: unknown
   return (
     <div ref={ref} className="relative inline-flex align-middle">
       <motion.button
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.08, y: -1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-white/10 backdrop-blur-sm cursor-pointer transition-all"
-        style={{ background: `${val.hex}22` }}
+        className="chip-inline"
+        style={{ background: `${val.hex}20`, borderColor: `${val.hex}40` }}
       >
-        <span className="w-4 h-4 rounded-full border-2 border-white/30 shadow-[0_0_8px_var(--glow)]" style={{ background: val.hex, "--glow": `${val.hex}66` } as any} />
-        {/* WYSIWYG: hex label rendered in the actual color */}
-        <span className="text-xs font-mono font-semibold tracking-tight" style={{ color: val.hex, textShadow: `0 0 10px ${val.hex}44` }}>{val.hex}</span>
+        <span
+          className="w-5 h-5 rounded-full border-2 border-white/40"
+          style={{
+            background: val.hex,
+            boxShadow: `0 0 12px ${val.hex}55, 0 2px 4px rgba(0,0,0,0.2)`,
+          }}
+        />
+        <span className="text-xs font-mono font-bold tracking-tight" style={{ color: val.hex, textShadow: `0 0 12px ${val.hex}44` }}>{val.hex}</span>
       </motion.button>
 
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 4 }}
+            initial={{ opacity: 0, scale: 0.92, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 4 }}
+            exit={{ opacity: 0, scale: 0.92, y: 6 }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className="absolute top-full mt-2 left-0 z-50 bg-bg-elevated border border-white/10 rounded-2xl p-3 sm:p-4 shadow-[0_16px_48px_rgba(0,0,0,0.6)] w-[200px] sm:w-[220px]"
+            className="absolute top-full mt-2 left-0 z-50 bg-bg-elevated border border-white/12 rounded-2xl p-3 sm:p-4 w-[200px] sm:w-[220px]"
+            style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.4), 0 24px 48px rgba(0,0,0,0.3)" }}
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-bold uppercase tracking-widest text-accent">Color</span>
               <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-md" style={{ background: val.hex }} />
-                <span className="text-xs font-mono font-semibold">{val.hex}</span>
+                <span className="w-6 h-6 rounded-lg" style={{ background: val.hex, boxShadow: `0 2px 8px ${val.hex}44` }} />
+                <span className="text-xs font-mono font-bold">{val.hex}</span>
               </div>
             </div>
             <input
@@ -70,18 +76,20 @@ function ColorChip({ widget, onChange }: { widget: Widget; onChange: (v: unknown
               onChange={(e) => onChange({ ...val, hex: e.target.value })}
               className="w-full h-10 rounded-xl cursor-pointer border-0 mb-3"
             />
-            <div className="grid grid-cols-6 gap-1.5">
+            <div className="grid grid-cols-6 gap-2">
               {presets.map((c) => (
                 <motion.button
                   key={c}
-                  whileHover={{ scale: 1.2 }}
+                  whileHover={{ scale: 1.25, y: -2 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={() => onChange({ ...val, hex: c })}
                   className="w-7 h-7 rounded-lg cursor-pointer transition-all"
                   style={{
                     background: c,
-                    border: val.hex.toLowerCase() === c.toLowerCase() ? "2px solid white" : "1px solid rgba(255,255,255,0.1)",
-                    boxShadow: val.hex.toLowerCase() === c.toLowerCase() ? `0 0 12px ${c}66` : "none",
+                    border: val.hex.toLowerCase() === c.toLowerCase() ? "2.5px solid white" : "1px solid rgba(255,255,255,0.1)",
+                    boxShadow: val.hex.toLowerCase() === c.toLowerCase()
+                      ? `0 0 16px ${c}66, 0 4px 8px rgba(0,0,0,0.2)`
+                      : "0 2px 4px rgba(0,0,0,0.15)",
                   }}
                 />
               ))}
@@ -156,6 +164,53 @@ function NumericPreview({ type, value }: { type: string; value: number }) {
   }
 }
 
+/** Spielwerk-style stepper counter: - N + */
+function StepperChip({ widget, onChange, config }: {
+  widget: Widget
+  onChange: (v: unknown) => void
+  config: { min: number; max: number; step: number; unit: string; getValue: (w: Widget) => number; buildValue: (n: number, w: Widget) => unknown }
+}) {
+  const current = config.getValue(widget)
+  const decrement = () => {
+    const next = Math.max(config.min, current - config.step)
+    onChange(config.buildValue(next, widget))
+  }
+  const increment = () => {
+    const next = Math.min(config.max, current + config.step)
+    onChange(config.buildValue(next, widget))
+  }
+  return (
+    <span className="chip-inline" style={{ gap: "2px", padding: "2px 4px" }}>
+      <motion.button
+        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.85 }}
+        onClick={decrement}
+        className="stepper-btn"
+        style={{ width: 26, height: 26, fontSize: 16, background: "rgba(255,255,255,0.1)", color: "#A1A1AA", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "none" }}
+      >
+        −
+      </motion.button>
+      <motion.span
+        key={current}
+        initial={{ scale: 1.3, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="text-sm font-bold font-mono px-2 min-w-[28px] text-center text-white"
+      >
+        {current}
+      </motion.span>
+      <motion.button
+        whileHover={{ scale: 1.15 }}
+        whileTap={{ scale: 0.85 }}
+        onClick={increment}
+        className="stepper-btn"
+        style={{ width: 26, height: 26, fontSize: 16, background: "rgba(255,255,255,0.1)", color: "#A1A1AA", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "none" }}
+      >
+        +
+      </motion.button>
+    </span>
+  )
+}
+
 function NumericChip({ widget, onChange, config }: {
   widget: Widget
   onChange: (v: unknown) => void
@@ -164,6 +219,13 @@ function NumericChip({ widget, onChange, config }: {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const current = config.getValue(widget)
+
+  // Use stepper for small-range integers (like grid-columns, small spacing)
+  const range = config.max - config.min
+  const isSmallRange = range <= 20 && config.step >= 1
+  if (isSmallRange) {
+    return <StepperChip widget={widget} onChange={onChange} config={config} />
+  }
 
   useEffect(() => {
     if (!open) return
@@ -179,12 +241,12 @@ function NumericChip({ widget, onChange, config }: {
   return (
     <div ref={ref} className="relative inline-flex align-middle">
       <motion.button
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.08, y: -1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-all"
+        className="chip-inline"
         style={{
-          borderColor: `${accent}44`,
+          borderColor: `${accent}40`,
           background: `${accent}18`,
         }}
       >
@@ -206,11 +268,12 @@ function NumericChip({ widget, onChange, config }: {
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 4 }}
+            initial={{ opacity: 0, scale: 0.92, y: 6 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 4 }}
+            exit={{ opacity: 0, scale: 0.92, y: 6 }}
             transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className="absolute top-full mt-2 left-0 z-50 bg-bg-elevated border border-white/10 rounded-2xl p-3 sm:p-4 shadow-[0_16px_48px_rgba(0,0,0,0.6)] w-[220px] sm:w-[260px]"
+            className="absolute top-full mt-2 left-0 z-50 bg-bg-elevated border border-white/12 rounded-2xl p-3 sm:p-4 w-[220px] sm:w-[260px]"
+            style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.4), 0 24px 48px rgba(0,0,0,0.3)" }}
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: accent }}>{config.label}</span>
@@ -218,7 +281,7 @@ function NumericChip({ widget, onChange, config }: {
                 key={current}
                 initial={{ scale: 1.2 }}
                 animate={{ scale: 1 }}
-                className="text-sm font-mono font-bold px-2 py-0.5 rounded-lg"
+                className="text-sm font-mono font-bold px-2.5 py-1 rounded-lg"
                 style={{ background: `${accent}22`, color: accent }}
               >
                 {current}{config.unit}
@@ -245,14 +308,15 @@ function NumericChip({ widget, onChange, config }: {
               {config.presets.map((p) => (
                 <motion.button
                   key={p}
-                  whileHover={{ scale: 1.08 }}
+                  whileHover={{ scale: 1.1, y: -1 }}
                   whileTap={{ scale: 0.92 }}
                   onClick={() => onChange(config.buildValue(p, widget))}
-                  className="px-2.5 py-1 rounded-lg text-[11px] font-mono font-semibold cursor-pointer transition-all"
+                  className="px-2.5 py-1.5 rounded-lg text-[11px] font-mono font-bold cursor-pointer transition-all"
                   style={{
                     background: p === current ? `${accent}30` : "rgba(255,255,255,0.04)",
-                    border: p === current ? `1px solid ${accent}66` : "1px solid rgba(255,255,255,0.06)",
+                    border: p === current ? `1.5px solid ${accent}66` : "1px solid rgba(255,255,255,0.06)",
                     color: p === current ? accent : "inherit",
+                    boxShadow: p === current ? `0 2px 8px ${accent}33` : "none",
                   }}
                 >
                   {p}{config.unit}
@@ -351,28 +415,33 @@ function ToggleChip({ widget, onChange }: { widget: Widget; onChange: (v: unknow
   const val = widget.value as { key: string; enabled: boolean }
   return (
     <motion.button
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: 1.08, y: -1 }}
       whileTap={{ scale: 0.95 }}
       onClick={() => onChange({ ...val, enabled: !val.enabled })}
-      className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border cursor-pointer transition-all align-middle"
+      className="chip-inline"
       style={{
-        borderColor: val.enabled ? "rgba(34,197,94,0.4)" : "rgba(255,255,255,0.1)",
-        background: val.enabled ? "rgba(34,197,94,0.15)" : "rgba(255,255,255,0.04)",
-        // WYSIWYG: glow when enabled
-        boxShadow: val.enabled ? "0 0 12px rgba(34,197,94,0.2)" : "none",
+        borderColor: val.enabled ? "rgba(34,197,94,0.5)" : "rgba(255,255,255,0.15)",
+        background: val.enabled ? "rgba(34,197,94,0.18)" : "rgba(255,255,255,0.08)",
+        boxShadow: val.enabled
+          ? "0 0 16px rgba(34,197,94,0.25), 0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1)"
+          : "0 2px 8px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)",
       }}
     >
-      <div className="relative w-7 h-4 rounded-full transition-colors" style={{ background: val.enabled ? "#22C55E" : "#3F3F46" }}>
+      <div className="relative w-8 h-[18px] rounded-full transition-colors" style={{
+        background: val.enabled ? "#22C55E" : "#3F3F46",
+        boxShadow: val.enabled ? "inset 0 1px 2px rgba(0,0,0,0.15), 0 0 8px rgba(34,197,94,0.3)" : "inset 0 1px 3px rgba(0,0,0,0.3)",
+      }}>
         <motion.div
-          animate={{ x: val.enabled ? 13 : 1 }}
-          transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          className="absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm"
+          animate={{ x: val.enabled ? 14 : 2 }}
+          transition={{ type: "spring", stiffness: 500, damping: 28 }}
+          className="absolute top-[2px] w-[14px] h-[14px] rounded-full bg-white"
+          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.3), 0 0 0 0.5px rgba(0,0,0,0.05)" }}
         />
       </div>
-      {/* WYSIWYG: strikethrough when off, green when on */}
-      <span className="text-xs font-semibold transition-all" style={{
+      <span className="text-xs font-bold transition-all" style={{
         color: val.enabled ? "#22C55E" : "#71717A",
         textDecoration: val.enabled ? "none" : "line-through",
+        textShadow: val.enabled ? "0 0 8px rgba(34,197,94,0.3)" : "none",
       }}>
         {val.key}
       </span>
@@ -681,31 +750,51 @@ function PresetChip({ widget, onChange, config }: {
   const iconAnim = getIconAnimation(widget)
   const animated = needsAnimatedIcon(widget.type)
 
+  // Find the icon of the currently selected option
+  // Use partial match: check if all keys in the option's value match the widget's value
+  const selectedOption = config.options.find((opt: any) => {
+    const wv = widget.value as any
+    const ov = opt.value as any
+    if (typeof ov !== "object" || typeof wv !== "object") return JSON.stringify(ov) === JSON.stringify(wv)
+    return Object.keys(ov).every((k) => JSON.stringify(ov[k]) === JSON.stringify(wv[k]))
+  })
+  const activeIcon = selectedOption?.icon || config.icon
+
   return (
     <div ref={ref} className="relative inline-flex align-middle">
       <motion.button
-        whileHover={{ scale: 1.05 }}
+        whileHover={{ scale: 1.08, y: -1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setOpen(!open)}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border cursor-pointer transition-all"
+        className="chip-inline"
         style={{
-          borderColor: `${config.color}44`,
+          borderColor: `${config.color}40`,
           background: `${config.color}18`,
           ...containerStyle,
           ...((wysiwygStyle as any).cursor ? { cursor: (wysiwygStyle as any).cursor } : {}),
         }}
       >
-        {/* Animated icon for widgets that need it */}
-        {animated ? (
+        {/* Animated icon — uses the selected option's icon, not the static config icon */}
+        {animated && Object.keys(iconAnim).length > 0 ? (
           <motion.span
-            className="text-xs"
-            animate={iconAnim}
+            key={activeIcon}
+            className="text-sm"
+            initial={{ scale: 1, opacity: 1 }}
+            animate={{ ...iconAnim, opacity: iconAnim.opacity || 1 }}
             transition={{ duration: 1, repeat: Infinity, repeatDelay: 0.5 }}
           >
-            {config.icon}
+            {activeIcon}
           </motion.span>
         ) : (
-          <span className="text-xs">{config.icon}</span>
+          <motion.span
+            key={activeIcon}
+            className="text-sm"
+            initial={{ scale: 0.5, opacity: 0, rotate: -20 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+          >
+            {activeIcon}
+          </motion.span>
         )}
         {/* WYSIWYG label with reactive styles */}
         <motion.span
@@ -717,7 +806,7 @@ function PresetChip({ widget, onChange, config }: {
         >
           {config.getLabel(widget)}
         </motion.span>
-        <span className="text-[8px] opacity-40">▼</span>
+        <span className="text-[8px] opacity-30">▾</span>
       </motion.button>
 
       <AnimatePresence>
@@ -776,7 +865,14 @@ const numericConfigs: Record<string, any> = {
 }
 
 const presetConfigs: Record<string, any> = {
-  shadow: { icon: "🌑", color: "#64748B", getLabel: (w: Widget) => `shadow-${(w.value as any).preset}`, options: ["none", "sm", "md", "lg", "xl", "2xl"].map(s => ({ label: s === "none" ? "None" : `Shadow ${s}`, value: { preset: s } })) },
+  shadow: { icon: "🌑", color: "#64748B", getLabel: (w: Widget) => `shadow-${(w.value as any).preset}`, options: [
+    { label: "None", value: { preset: "none" }, icon: "∅" },
+    { label: "Shadow sm", value: { preset: "sm" }, icon: "◡" },
+    { label: "Shadow md", value: { preset: "md" }, icon: "◑" },
+    { label: "Shadow lg", value: { preset: "lg" }, icon: "◕" },
+    { label: "Shadow xl", value: { preset: "xl" }, icon: "⬤" },
+    { label: "Shadow 2xl", value: { preset: "2xl" }, icon: "🌑" },
+  ]},
   animation: { icon: "🎬", color: "#8B5CF6", getLabel: (w: Widget) => (w.value as any).name, options: [
     { label: "Bounce", value: { name: "bounce", duration: 500 }, icon: "⬆" },
     { label: "Fade In", value: { name: "fade-in", duration: 300 }, icon: "✦" },
@@ -787,7 +883,18 @@ const presetConfigs: Record<string, any> = {
     { label: "Pulse", value: { name: "pulse", duration: 2000 }, icon: "◉" },
     { label: "Elastic", value: { name: "elastic", duration: 800, config: { stiffness: 200, damping: 10 } }, icon: "〰" },
   ]},
-  "font-family": { icon: "𝔉", color: "#EC4899", getLabel: (w: Widget) => (w.value as any).family, options: ["Inter", "Roboto", "Poppins", "Montserrat", "Playfair Display", "Fira Code", "JetBrains Mono", "Space Grotesk", "DM Sans", "Geist"].map(f => ({ label: f, value: { family: f } })) },
+  "font-family": { icon: "𝔉", color: "#EC4899", getLabel: (w: Widget) => (w.value as any).family, options: [
+    { label: "Inter", value: { family: "Inter" }, icon: "Aa" },
+    { label: "Roboto", value: { family: "Roboto" }, icon: "Rr" },
+    { label: "Poppins", value: { family: "Poppins" }, icon: "Pp" },
+    { label: "Montserrat", value: { family: "Montserrat" }, icon: "Mm" },
+    { label: "Playfair Display", value: { family: "Playfair Display" }, icon: "𝒫" },
+    { label: "Fira Code", value: { family: "Fira Code" }, icon: "</>" },
+    { label: "JetBrains Mono", value: { family: "JetBrains Mono" }, icon: "JB" },
+    { label: "Space Grotesk", value: { family: "Space Grotesk" }, icon: "Sg" },
+    { label: "DM Sans", value: { family: "DM Sans" }, icon: "Dm" },
+    { label: "Geist", value: { family: "Geist" }, icon: "Gt" },
+  ]},
   breakpoint: { icon: "📱", color: "#F59E0B", getLabel: (w: Widget) => `${(w.value as any).name} (${(w.value as any).width}px)`, options: [
     { label: "sm — 640px", value: { name: "sm", width: 640 }, icon: "📱" },
     { label: "md — 768px", value: { name: "md", width: 768 }, icon: "📱" },
@@ -795,7 +902,17 @@ const presetConfigs: Record<string, any> = {
     { label: "xl — 1280px", value: { name: "xl", width: 1280 }, icon: "🖥️" },
   ]},
   select: { icon: "📋", color: "#6366F1", getLabel: (w: Widget) => (w.value as any).selected || (w.value as any).key, options: [] },
-  "font-weight": { icon: "B", color: "#F97316", getLabel: (w: Widget) => { const labels: Record<number, string> = { 100: "Thin", 200: "ExtraLight", 300: "Light", 400: "Regular", 500: "Medium", 600: "SemiBold", 700: "Bold", 800: "ExtraBold", 900: "Black" }; return labels[(w.value as any).value] || `${(w.value as any).value}` }, options: [100, 200, 300, 400, 500, 600, 700, 800, 900].map(v => ({ label: { 100: "Thin", 200: "ExtraLight", 300: "Light", 400: "Regular", 500: "Medium", 600: "SemiBold", 700: "Bold", 800: "ExtraBold", 900: "Black" }[v] || `${v}`, value: { value: v } })) },
+  "font-weight": { icon: "B", color: "#F97316", getLabel: (w: Widget) => { const labels: Record<number, string> = { 100: "Thin", 200: "ExtraLight", 300: "Light", 400: "Regular", 500: "Medium", 600: "SemiBold", 700: "Bold", 800: "ExtraBold", 900: "Black" }; return labels[(w.value as any).value] || `${(w.value as any).value}` }, options: [
+    { label: "Thin", value: { value: 100 }, icon: "Tₕ" },
+    { label: "ExtraLight", value: { value: 200 }, icon: "El" },
+    { label: "Light", value: { value: 300 }, icon: "Lt" },
+    { label: "Regular", value: { value: 400 }, icon: "Rg" },
+    { label: "Medium", value: { value: 500 }, icon: "Md" },
+    { label: "SemiBold", value: { value: 600 }, icon: "Sb" },
+    { label: "Bold", value: { value: 700 }, icon: "B" },
+    { label: "ExtraBold", value: { value: 800 }, icon: "Eb" },
+    { label: "Black", value: { value: 900 }, icon: "Bk" },
+  ]},
   "text-align": { icon: "≡", color: "#14B8A6", getLabel: (w: Widget) => (w.value as any).value, options: [
     { label: "Left", value: { value: "left" }, icon: "◧" },
     { label: "Center", value: { value: "center" }, icon: "◫" },
@@ -803,27 +920,27 @@ const presetConfigs: Record<string, any> = {
     { label: "Justify", value: { value: "justify" }, icon: "☰" },
   ]},
   "line-height": { icon: "¶", color: "#A855F7", getLabel: (w: Widget) => (w.value as any).label, options: [
-    { label: "Tight (1.25)", value: { value: 1.25, label: "tight" } },
-    { label: "Snug (1.375)", value: { value: 1.375, label: "snug" } },
-    { label: "Normal (1.5)", value: { value: 1.5, label: "normal" } },
-    { label: "Relaxed (1.625)", value: { value: 1.625, label: "relaxed" } },
-    { label: "Loose (2)", value: { value: 2, label: "loose" } },
+    { label: "Tight (1.25)", value: { value: 1.25, label: "tight" }, icon: "≡" },
+    { label: "Snug (1.375)", value: { value: 1.375, label: "snug" }, icon: "≡" },
+    { label: "Normal (1.5)", value: { value: 1.5, label: "normal" }, icon: "¶" },
+    { label: "Relaxed (1.625)", value: { value: 1.625, label: "relaxed" }, icon: "⏐" },
+    { label: "Loose (2)", value: { value: 2, label: "loose" }, icon: "⟘" },
   ]},
   "letter-spacing": { icon: "AV", color: "#F43F5E", getLabel: (w: Widget) => (w.value as any).label, options: [
-    { label: "Tighter (-0.05em)", value: { value: -0.05, label: "tighter" } },
-    { label: "Tight (-0.025em)", value: { value: -0.025, label: "tight" } },
-    { label: "Normal (0)", value: { value: 0, label: "normal" } },
-    { label: "Wide (0.025em)", value: { value: 0.025, label: "wide" } },
-    { label: "Wider (0.05em)", value: { value: 0.05, label: "wider" } },
-    { label: "Widest (0.1em)", value: { value: 0.1, label: "widest" } },
+    { label: "Tighter (-0.05em)", value: { value: -0.05, label: "tighter" }, icon: "»" },
+    { label: "Tight (-0.025em)", value: { value: -0.025, label: "tight" }, icon: "›" },
+    { label: "Normal (0)", value: { value: 0, label: "normal" }, icon: "AV" },
+    { label: "Wide (0.025em)", value: { value: 0.025, label: "wide" }, icon: "A V" },
+    { label: "Wider (0.05em)", value: { value: 0.05, label: "wider" }, icon: "A  V" },
+    { label: "Widest (0.1em)", value: { value: 0.1, label: "widest" }, icon: "A   V" },
   ]},
   border: { icon: "▢", color: "#64748B", getLabel: (w: Widget) => `${(w.value as any).width}px ${(w.value as any).style}`, options: [
-    { label: "None", value: { width: 0, style: "none", color: "#FFFFFF" } },
-    { label: "1px solid", value: { width: 1, style: "solid", color: "#FFFFFF" } },
-    { label: "2px solid", value: { width: 2, style: "solid", color: "#FFFFFF" } },
-    { label: "1px dashed", value: { width: 1, style: "dashed", color: "#FFFFFF" } },
-    { label: "2px dashed", value: { width: 2, style: "dashed", color: "#FFFFFF" } },
-    { label: "1px dotted", value: { width: 1, style: "dotted", color: "#FFFFFF" } },
+    { label: "None", value: { width: 0, style: "none", color: "#FFFFFF" }, icon: "∅" },
+    { label: "1px solid", value: { width: 1, style: "solid", color: "#FFFFFF" }, icon: "▢" },
+    { label: "2px solid", value: { width: 2, style: "solid", color: "#FFFFFF" }, icon: "◻" },
+    { label: "1px dashed", value: { width: 1, style: "dashed", color: "#FFFFFF" }, icon: "▤" },
+    { label: "2px dashed", value: { width: 2, style: "dashed", color: "#FFFFFF" }, icon: "▥" },
+    { label: "1px dotted", value: { width: 1, style: "dotted", color: "#FFFFFF" }, icon: "⊡" },
   ]},
   // --- Effects & Interactions ---
   effect: { icon: "✦", color: "#E879F9", getLabel: (w: Widget) => `${(w.value as any).name}`, options: [
@@ -853,14 +970,14 @@ const presetConfigs: Record<string, any> = {
     { label: "None", value: { value: "none" }, icon: "∅" },
   ]},
   filter: { icon: "◈", color: "#06B6D4", getLabel: (w: Widget) => (w.value as any).type === "none" ? "none" : `${(w.value as any).type} ${(w.value as any).value}%`, options: [
-    { label: "None", value: { type: "none", value: 100 } },
-    { label: "Grayscale", value: { type: "grayscale", value: 100 } },
-    { label: "Sepia", value: { type: "sepia", value: 100 } },
-    { label: "Saturate 150%", value: { type: "saturate", value: 150 } },
-    { label: "Hue Rotate 90°", value: { type: "hue-rotate", value: 90 } },
-    { label: "Invert", value: { type: "invert", value: 100 } },
-    { label: "Brightness 120%", value: { type: "brightness", value: 120 } },
-    { label: "Contrast 150%", value: { type: "contrast", value: 150 } },
+    { label: "None", value: { type: "none", value: 100 }, icon: "∅" },
+    { label: "Grayscale", value: { type: "grayscale", value: 100 }, icon: "◐" },
+    { label: "Sepia", value: { type: "sepia", value: 100 }, icon: "🟤" },
+    { label: "Saturate 150%", value: { type: "saturate", value: 150 }, icon: "🌈" },
+    { label: "Hue Rotate 90°", value: { type: "hue-rotate", value: 90 }, icon: "🔄" },
+    { label: "Invert", value: { type: "invert", value: 100 }, icon: "◑" },
+    { label: "Brightness 120%", value: { type: "brightness", value: 120 }, icon: "☀" },
+    { label: "Contrast 150%", value: { type: "contrast", value: 150 }, icon: "◕" },
   ]},
   // --- Layout Advanced ---
   "flex-direction": { icon: "→", color: "#14B8A6", getLabel: (w: Widget) => { const icons: Record<string,string> = { row: "→", column: "↓", "row-reverse": "←", "column-reverse": "↑" }; return `${icons[(w.value as any).value]||""} ${(w.value as any).value}` }, options: [
@@ -885,11 +1002,11 @@ const presetConfigs: Record<string, any> = {
     { label: "Baseline", value: { value: "baseline" }, icon: "—" },
   ]},
   position: { icon: "◎", color: "#F97316", getLabel: (w: Widget) => (w.value as any).value, options: [
-    { label: "Static", value: { value: "static" } },
-    { label: "Relative", value: { value: "relative" } },
-    { label: "Absolute", value: { value: "absolute" } },
-    { label: "Fixed", value: { value: "fixed" } },
-    { label: "Sticky", value: { value: "sticky" } },
+    { label: "Static", value: { value: "static" }, icon: "▪" },
+    { label: "Relative", value: { value: "relative" }, icon: "↗" },
+    { label: "Absolute", value: { value: "absolute" }, icon: "⊹" },
+    { label: "Fixed", value: { value: "fixed" }, icon: "📌" },
+    { label: "Sticky", value: { value: "sticky" }, icon: "📎" },
   ]},
   display: { icon: "☐", color: "#3B82F6", getLabel: (w: Widget) => (w.value as any).value, options: [
     { label: "Flex", value: { value: "flex" }, icon: "⬛" },
@@ -900,11 +1017,11 @@ const presetConfigs: Record<string, any> = {
     { label: "None", value: { value: "none" }, icon: "∅" },
   ]},
   overflow: { icon: "⧉", color: "#64748B", getLabel: (w: Widget) => `overflow-${(w.value as any).value}`, options: [
-    { label: "Visible", value: { value: "visible" } },
-    { label: "Hidden", value: { value: "hidden" } },
-    { label: "Scroll", value: { value: "scroll" } },
-    { label: "Auto", value: { value: "auto" } },
-    { label: "Clip", value: { value: "clip" } },
+    { label: "Visible", value: { value: "visible" }, icon: "👁" },
+    { label: "Hidden", value: { value: "hidden" }, icon: "🙈" },
+    { label: "Scroll", value: { value: "scroll" }, icon: "↕" },
+    { label: "Auto", value: { value: "auto" }, icon: "⟳" },
+    { label: "Clip", value: { value: "clip" }, icon: "✂" },
   ]},
   "aspect-ratio": { icon: "⬛", color: "#F59E0B", getLabel: (w: Widget) => (w.value as any).label, options: [
     { label: "1:1 Square", value: { value: "1/1", label: "1:1" }, icon: "■" },
@@ -914,44 +1031,44 @@ const presetConfigs: Record<string, any> = {
     { label: "21:9 Ultra", value: { value: "21/9", label: "21:9" }, icon: "━" },
   ]},
   "object-fit": { icon: "🖼", color: "#22C55E", getLabel: (w: Widget) => `object-${(w.value as any).value}`, options: [
-    { label: "Cover", value: { value: "cover" } },
-    { label: "Contain", value: { value: "contain" } },
-    { label: "Fill", value: { value: "fill" } },
-    { label: "None", value: { value: "none" } },
-    { label: "Scale Down", value: { value: "scale-down" } },
+    { label: "Cover", value: { value: "cover" }, icon: "⬛" },
+    { label: "Contain", value: { value: "contain" }, icon: "◻" },
+    { label: "Fill", value: { value: "fill" }, icon: "▬" },
+    { label: "None", value: { value: "none" }, icon: "∅" },
+    { label: "Scale Down", value: { value: "scale-down" }, icon: "⊟" },
   ]},
   // --- Typography Advanced ---
   "text-decoration": { icon: "U̲", color: "#A855F7", getLabel: (w: Widget) => (w.value as any).value, options: [
-    { label: "None", value: { value: "none" } },
+    { label: "None", value: { value: "none" }, icon: "∅" },
     { label: "Underline", value: { value: "underline" }, icon: "U̲" },
     { label: "Line Through", value: { value: "line-through" }, icon: "S̶" },
     { label: "Overline", value: { value: "overline" }, icon: "O̅" },
   ]},
   "text-transform": { icon: "Aa", color: "#EC4899", getLabel: (w: Widget) => { const l: Record<string,string> = { none: "as-is", uppercase: "UPPER", lowercase: "lower", capitalize: "Title" }; return l[(w.value as any).value] || (w.value as any).value }, options: [
-    { label: "None", value: { value: "none" } },
-    { label: "UPPERCASE", value: { value: "uppercase" } },
-    { label: "lowercase", value: { value: "lowercase" } },
-    { label: "Capitalize", value: { value: "capitalize" } },
+    { label: "None", value: { value: "none" }, icon: "Aa" },
+    { label: "UPPERCASE", value: { value: "uppercase" }, icon: "AA" },
+    { label: "lowercase", value: { value: "lowercase" }, icon: "aa" },
+    { label: "Capitalize", value: { value: "capitalize" }, icon: "Ab" },
   ]},
   "text-overflow": { icon: "…", color: "#F43F5E", getLabel: (w: Widget) => (w.value as any).value, options: [
-    { label: "Clip", value: { value: "clip" } },
-    { label: "Ellipsis …", value: { value: "ellipsis" } },
-    { label: "Truncate", value: { value: "truncate" } },
+    { label: "Clip", value: { value: "clip" }, icon: "✂" },
+    { label: "Ellipsis …", value: { value: "ellipsis" }, icon: "…" },
+    { label: "Truncate", value: { value: "truncate" }, icon: "⤏" },
   ]},
   // --- Component-Level ---
   "button-variant": { icon: "☐", color: "#3B82F6", getLabel: (w: Widget) => `${(w.value as any).variant} (${(w.value as any).size})`, options: [
-    { label: "Default", value: { variant: "default", size: "default" } },
-    { label: "Secondary", value: { variant: "secondary", size: "default" } },
-    { label: "Outline", value: { variant: "outline", size: "default" } },
-    { label: "Ghost", value: { variant: "ghost", size: "default" } },
-    { label: "Destructive", value: { variant: "destructive", size: "default" } },
-    { label: "Link", value: { variant: "link", size: "default" } },
-    { label: "Small", value: { variant: "default", size: "sm" } },
-    { label: "Large", value: { variant: "default", size: "lg" } },
-    { label: "Icon", value: { variant: "default", size: "icon" } },
+    { label: "Default", value: { variant: "default", size: "default" }, icon: "▪" },
+    { label: "Secondary", value: { variant: "secondary", size: "default" }, icon: "▫" },
+    { label: "Outline", value: { variant: "outline", size: "default" }, icon: "▢" },
+    { label: "Ghost", value: { variant: "ghost", size: "default" }, icon: "👻" },
+    { label: "Destructive", value: { variant: "destructive", size: "default" }, icon: "🔴" },
+    { label: "Link", value: { variant: "link", size: "default" }, icon: "🔗" },
+    { label: "Small", value: { variant: "default", size: "sm" }, icon: "🔹" },
+    { label: "Large", value: { variant: "default", size: "lg" }, icon: "🔷" },
+    { label: "Icon", value: { variant: "default", size: "icon" }, icon: "⊡" },
   ]},
   pattern: { icon: "░", color: "#64748B", getLabel: (w: Widget) => `${(w.value as any).name} ${(w.value as any).opacity}%`, options: [
-    { label: "None", value: { name: "none", opacity: 0 } },
+    { label: "None", value: { name: "none", opacity: 0 }, icon: "∅" },
     { label: "Dots", value: { name: "dots", opacity: 20 }, icon: "⋯" },
     { label: "Grid", value: { name: "grid", opacity: 15 }, icon: "▦" },
     { label: "Diagonal", value: { name: "diagonal", opacity: 15 }, icon: "╲" },
@@ -961,14 +1078,14 @@ const presetConfigs: Record<string, any> = {
   ]},
   // Transform has its own special handling
   transform: { icon: "⟲", color: "#F97316", getLabel: (w: Widget) => { const v = (w.value as any); const p = []; if (v.rotate) p.push(`${v.rotate}°`); if (v.scale !== 1) p.push(`×${v.scale}`); return p.length ? p.join(" ") : "none" }, options: [
-    { label: "None", value: { rotate: 0, scale: 1, skewX: 0, skewY: 0 } },
-    { label: "Rotate 45°", value: { rotate: 45, scale: 1, skewX: 0, skewY: 0 } },
-    { label: "Rotate 90°", value: { rotate: 90, scale: 1, skewX: 0, skewY: 0 } },
-    { label: "Rotate 180°", value: { rotate: 180, scale: 1, skewX: 0, skewY: 0 } },
-    { label: "Scale 0.5×", value: { rotate: 0, scale: 0.5, skewX: 0, skewY: 0 } },
-    { label: "Scale 1.5×", value: { rotate: 0, scale: 1.5, skewX: 0, skewY: 0 } },
-    { label: "Scale 2×", value: { rotate: 0, scale: 2, skewX: 0, skewY: 0 } },
-    { label: "Skew 10°", value: { rotate: 0, scale: 1, skewX: 10, skewY: 0 } },
+    { label: "None", value: { rotate: 0, scale: 1, skewX: 0, skewY: 0 }, icon: "∅" },
+    { label: "Rotate 45°", value: { rotate: 45, scale: 1, skewX: 0, skewY: 0 }, icon: "↗" },
+    { label: "Rotate 90°", value: { rotate: 90, scale: 1, skewX: 0, skewY: 0 }, icon: "→" },
+    { label: "Rotate 180°", value: { rotate: 180, scale: 1, skewX: 0, skewY: 0 }, icon: "↓" },
+    { label: "Scale 0.5×", value: { rotate: 0, scale: 0.5, skewX: 0, skewY: 0 }, icon: "⊟" },
+    { label: "Scale 1.5×", value: { rotate: 0, scale: 1.5, skewX: 0, skewY: 0 }, icon: "⊞" },
+    { label: "Scale 2×", value: { rotate: 0, scale: 2, skewX: 0, skewY: 0 }, icon: "⬛" },
+    { label: "Skew 10°", value: { rotate: 0, scale: 1, skewX: 10, skewY: 0 }, icon: "◇" },
   ]},
   // === 21st.dev Components ===
   "text-effect": { icon: "✨", color: "#E879F9", getLabel: (w: Widget) => (w.value as any).name, options: [
@@ -1034,13 +1151,13 @@ const presetConfigs: Record<string, any> = {
   ]},
   "nav-style": { icon: "☰", color: "#06B6D4", getLabel: (w: Widget) => (w.value as any).name, options: [
     { label: "Floating Navbar", value: { name: "floating-navbar", source: "aceternity" }, icon: "▔" },
-    { label: "Dock", value: { name: "dock", source: "magicui" }, icon: "▁" },
+    { label: "Dock", value: { name: "dock", source: "magicui" }, icon: "≡" },
     { label: "Tabs", value: { name: "tabs", source: "aceternity" }, icon: "⊟" },
   ]},
   "device-frame": { icon: "📱", color: "#22C55E", getLabel: (w: Widget) => (w.value as any).name, options: [
     { label: "iPhone 15 Pro", value: { name: "iphone-15-pro", source: "magicui" }, icon: "📱" },
     { label: "Safari", value: { name: "safari", source: "magicui" }, icon: "🧭" },
-    { label: "Terminal", value: { name: "terminal", source: "magicui" }, icon: "⬛" },
+    { label: "Terminal", value: { name: "terminal", source: "magicui" }, icon: ">_" },
   ]},
   "social-proof": { icon: "👥", color: "#EC4899", getLabel: (w: Widget) => (w.value as any).name, options: [
     { label: "Avatar Circles", value: { name: "avatar-circles", source: "magicui" }, icon: "👥" },
@@ -1192,7 +1309,7 @@ function PlaygroundInner() {
   const widgetMap = new Map(widgets.map((w) => [w.id, w]))
   const segments = text.split(PLACEHOLDER_REGEX)
 
-  const paletteWidgets = listWidgets(activeTab as WidgetCategory)
+  const paletteWidgets = listWidgets(activeTab as WidgetCategory).filter(def => def.type !== "select")
 
   return (
     <div className="flex flex-col h-[100dvh] overflow-hidden">
@@ -1325,39 +1442,44 @@ function PlaygroundInner() {
         </aside>
       </div>
 
-      {/* Bottom palette — Spielwerk style */}
-      <div className="border-t border-border bg-bg-subtle/80 backdrop-blur-xl shrink-0">
+      {/* Bottom palette — Spielwerk-style physical widget stickers */}
+      <div className="palette-surface shrink-0">
         {/* Category tabs */}
-        <div className="flex items-center gap-0.5 sm:gap-1 px-2 sm:px-4 pt-1.5 sm:pt-2 overflow-x-auto">
+        <div className="flex items-center gap-1 sm:gap-1.5 px-3 sm:px-5 pt-2.5 sm:pt-3 overflow-x-auto scrollbar-none">
           {categories.filter(c => categoryConfig[c]).map((cat) => (
             <button
               key={cat}
               onClick={() => setActiveTab(cat)}
-              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[11px] sm:text-xs font-semibold cursor-pointer transition-all border-0 shrink-0"
+              className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold cursor-pointer transition-all border-0 shrink-0"
               style={{
-                background: activeTab === cat ? "rgba(255,255,255,0.08)" : "transparent",
-                color: activeTab === cat ? "#FAFAFA" : "#71717A",
+                background: activeTab === cat ? "#FFFFFF" : "transparent",
+                color: activeTab === cat ? "#1A1A1A" : "#8A8A8E",
+                boxShadow: activeTab === cat
+                  ? "0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.06)"
+                  : "none",
               }}
             >
-              <span className="text-sm">{categoryConfig[cat]?.icon}</span>
+              <span className="text-sm sm:text-base">{categoryConfig[cat]?.icon}</span>
               <span className="hidden xs:inline sm:inline">{categoryConfig[cat]?.label}</span>
             </button>
           ))}
         </div>
 
-        {/* Widget grid */}
-        <div className="flex gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 overflow-x-auto scrollbar-none">
-          {paletteWidgets.map((def) => (
+        {/* Widget grid — physical sticker cards */}
+        <div className="flex gap-2.5 sm:gap-3 px-3 sm:px-5 py-3 sm:py-4 overflow-x-auto scrollbar-none">
+          {paletteWidgets.map((def, i) => (
             <motion.button
               key={def.type}
-              whileHover={{ scale: 1.06, y: -2 }}
-              whileTap={{ scale: 0.94 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.02, type: "spring", stiffness: 400, damping: 25 }}
+              whileHover={{ y: -4, scale: 1.05 }}
+              whileTap={{ scale: 0.95, y: 0 }}
               onClick={() => handleInsert(def.type)}
-              className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl border border-white/8 bg-bg-elevated cursor-pointer transition-all shrink-0 hover:border-white/20 hover:bg-white/5 active:scale-95"
-              style={{ color: "inherit" }}
+              className="widget-sticker flex flex-col items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-3 sm:py-4 cursor-pointer shrink-0 min-w-[72px] sm:min-w-[88px]"
             >
-              <span className="text-sm sm:text-base">{def.defaultDisplay.preview ?? "📦"}</span>
-              <span className="text-[11px] sm:text-xs font-semibold whitespace-nowrap">{def.defaultDisplay.label ?? def.type}</span>
+              <span className="text-xl sm:text-2xl drop-shadow-sm">{def.defaultDisplay.preview ?? "📦"}</span>
+              <span className="text-[10px] sm:text-[11px] font-bold text-[#3A3A3C] whitespace-nowrap tracking-tight">{def.defaultDisplay.label ?? def.type}</span>
             </motion.button>
           ))}
         </div>
